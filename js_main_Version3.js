@@ -1,96 +1,149 @@
-/**
- * Card Brilhante Premium - Efeitos especiais e acessibilidade
- * - Efeito de brilho líquido, partículas, tilt 3D e animações GSAP
- */
+<!-- ==========================
+     JAVASCRIPT PARA ELEMENTOR
+     Cole no widget HTML ou antes do </body>
+     ========================== -->
 
-/* -- Efeito de brilho líquido -- */
-const card = document.querySelector('.card-premium');
-const liquidGlow = document.querySelector('.liquid-glow');
+<!-- Carregar bibliotecas necessárias -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
 
-function updateLiquidGlow(e) {
-  const rect = card.getBoundingClientRect();
-  const x = ((e.touches ? e.touches[0].clientX : e.clientX) - rect.left) / rect.width * 100;
-  const y = ((e.touches ? e.touches[0].clientY : e.clientY) - rect.top) / rect.height * 100;
-  liquidGlow.style.setProperty('--x', `${x}%`);
-  liquidGlow.style.setProperty('--y', `${y}%`);
-}
-card.addEventListener('mousemove', updateLiquidGlow);
-card.addEventListener('touchmove', updateLiquidGlow);
-card.addEventListener('mouseleave', () => {
-  liquidGlow.style.setProperty('--x', '50%');
-  liquidGlow.style.setProperty('--y', '50%');
-});
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Inicializar os cards
+    const cards = document.querySelectorAll('.card-brilhante');
+    
+    cards.forEach(card => {
+        // Criar elementos necessários se não existirem
+        if (!card.querySelector('.brilho-effect')) {
+            const brilho = document.createElement('div');
+            brilho.className = 'brilho-effect';
+            card.insertBefore(brilho, card.firstChild);
+        }
+        
+        if (!card.querySelector('.card-glow')) {
+            const glow = document.createElement('div');
+            glow.className = 'card-glow';
+            card.insertBefore(glow, card.firstChild);
+        }
+        
+        if (!card.querySelector('.particles')) {
+            const particles = document.createElement('div');
+            particles.className = 'particles';
+            card.insertBefore(particles, card.firstChild);
+        }
+        
+        const brilho = card.querySelector('.brilho-effect');
+        const particles = card.querySelector('.particles');
+        
+        // Efeito de brilho líquido com deformação (compatível sem GSAP)
+        card.addEventListener('mousemove', function(e) {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Usar GSAP se disponível, senão usar CSS direto
+            if (typeof gsap !== 'undefined') {
+                gsap.to(brilho, {
+                    duration: 0.6,
+                    x: x - 150,
+                    y: y - 150,
+                    ease: "power2.out"
+                });
+            } else {
+                brilho.style.transform = `translate(${x - 150}px, ${y - 150}px)`;
+            }
+            
+            // Criar partículas ocasionalmente
+            if (Math.random() > 0.85) {
+                createParticle(particles, x, y);
+            }
+        });
 
-/* -- Partículas explosivas -- */
-const canvas = document.getElementById('particle-canvas');
-const ctx = canvas.getContext('2d');
-let particles = [];
-function resizeCanvas() {
-  canvas.width = card.offsetWidth;
-  canvas.height = card.offsetHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+        card.addEventListener('mouseenter', function() {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(brilho, {
+                    scale: 1.2,
+                    duration: 0.4,
+                    ease: "back.out(1.7)"
+                });
+            } else {
+                brilho.style.transform += ' scale(1.2)';
+            }
+        });
 
-function Particle(x, y) {
-  this.x = x; this.y = y;
-  this.radius = 2 + Math.random() * 2;
-  this.color = `rgba(255,85,0,${.45 + Math.random()*.4})`;
-  this.vel = { x: (Math.random()-.5)*3.2, y: (Math.random()-.5)*3.2 };
-  this.life = 0; this.ttl = 32+Math.random()*28;
-}
-function spawnParticles(x, y, n=13) {
-  for (let i=0; i<n; i++)
-    particles.push(new Particle(x, y));
-}
-function animateParticles() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach((p,i) => {
-    p.x += p.vel.x;
-    p.y += p.vel.y;
-    p.vel.y += 0.04;
-    p.life++;
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.radius,0,2*Math.PI);
-    ctx.fillStyle = p.color;
-    ctx.globalAlpha = (1 - p.life/p.ttl);
-    ctx.shadowColor = "#ff5500";
-    ctx.shadowBlur = 10;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    if (p.life > p.ttl) particles.splice(i,1);
-  });
-  requestAnimationFrame(animateParticles);
-}
-animateParticles();
-card.addEventListener('pointerdown', e => {
-  const rect = canvas.getBoundingClientRect();
-  spawnParticles((e.clientX-rect.left),(e.clientY-rect.top));
-});
-
-/* -- 3D Tilt com fallback -- */
-window.addEventListener('DOMContentLoaded', () => {
-  if ('VanillaTilt' in window) {
-    VanillaTilt.init(card, {
-      glare: true,
-      "max-glare": 0.32,
-      scale: 1.07,
-      speed: 600,
-      reverse: false
+        card.addEventListener('mouseleave', function() {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(brilho, {
+                    opacity: 0,
+                    scale: 1,
+                    duration: 0.3
+                });
+            } else {
+                brilho.style.opacity = '0';
+                brilho.style.transform = 'scale(1)';
+            }
+        });
     });
-  }
-});
 
-/* -- GSAP Animações de entrada -- */
-window.addEventListener('DOMContentLoaded', () => {
-  if (typeof gsap !== 'undefined') {
-    gsap.from(".card-premium", {
-      y: 80,
-      opacity: 0,
-      duration: 1.2,
-      ease: "power3.out"
-    });
-    gsap.from(".card-content h1", { opacity:0, y:20, duration:0.9, delay:0.28 });
-    gsap.from(".btn-premium", { opacity:0, scale:0.8, duration:0.7, delay:0.5 });
-  }
+    // Função para criar partículas animadas
+    function createParticle(container, x, y) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        container.appendChild(particle);
+        
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 100;
+        const endX = x + Math.cos(angle) * distance;
+        const endY = y + Math.sin(angle) * distance;
+        
+        if (typeof gsap !== 'undefined') {
+            gsap.to(particle, {
+                x: endX - x,
+                y: endY - y,
+                opacity: 1,
+                duration: 0.3,
+                ease: "power2.out"
+            });
+            
+            gsap.to(particle, {
+                opacity: 0,
+                duration: 0.5,
+                delay: 0.3,
+                onComplete: () => particle.remove()
+            });
+        } else {
+            // Animação CSS alternativa
+            particle.style.transition = 'all 0.8s ease-out';
+            particle.style.opacity = '1';
+            setTimeout(() => {
+                particle.style.transform = `translate(${endX - x}px, ${endY - y}px)`;
+                particle.style.opacity = '0';
+            }, 10);
+            setTimeout(() => particle.remove(), 800);
+        }
+    }
+
+    // Inicializar Vanilla Tilt (efeito 3D)
+    if (typeof VanillaTilt !== 'undefined') {
+        VanillaTilt.init(document.querySelectorAll('.card-brilhante'), {
+            max: 8,
+            speed: 400,
+            scale: 1.05,
+            glare: false
+        });
+    }
+
+    // Animação de entrada dos cards
+    if (typeof gsap !== 'undefined') {
+        gsap.from('.card-brilhante', {
+            duration: 1,
+            y: 100,
+            opacity: 0,
+            stagger: 0.2,
+            ease: "power3.out"
+        });
+    }
 });
+</script>
