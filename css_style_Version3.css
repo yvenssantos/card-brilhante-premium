@@ -1,0 +1,130 @@
+/* ----------------------------------------------------------
+   Card Brilhante Premium - CSS Global
+   ---------------------------------------------------------- */
+
+/* Reset e Fonte */
+body {
+  background: #0b0c10;
+  color: #fff;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+}
+
+/* Container do Card */
+.card-premium {
+  position: relative;
+  width: 350px;
+  margin: 60px auto;
+  background: rgba(25,25,28,0.98);
+  border-radius: 28px;
+  box-shadow:
+    0 8px 32px 0 rgba(255,85,0,0.25),
+    0 2px 8px 0 rgba(0,0,0,0.25);
+  overflow: hidden;
+  padding: 36px 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  will-change: transform;
+  outline: 0;
+  transition: box-shadow 0.3s cubic-bezier(.5,.9,.4,1.5);
+}
+.card-premium:focus {
+  box-shadow: 0 0 0 3px #ff550090, 0 8px 32px 0 rgba(255,85,0,0.12);
+}
+
+/* Brilho líquido que segue o mouse */
+.liquid-glow {
+  position: absolute;
+  top: 0; left: 0; pointer-events: none;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle at var(--x,50%) var(--y,50%), rgba(255,85,0,0.25) 0%, transparent 65%);
+  z-index: 2;
+  transition: background 0.2s;
+  will-change: background;
+}
+
+/* Glow rotativo hipnótico (com blur) */
+.rotating-glow {
+  position: absolute;
+  z-index: 1;
+  width: 120%;
+  height: 120%;
+  top: -10%;
+  left: -10%;
+  filter: blur(36px) brightness(1.3);
+  pointer-events: none;
+  background: conic-gradient(from var(--rot,0deg), #ff550044, #ffa00033, #ff550044 80%, transparent 100%);
+  animation: rotate-glow 4s linear infinite;
+}
+@keyframes rotate-glow {
+  0% { --rot: 0deg; }
+  100% { --rot: 360deg; }
+}
+
+/* Canvas de partículas */
+#particle-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Conteúdo do Card */
+.card-content {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+}
+.card-content h1 {
+  margin: 0 0 16px;
+  font-size: 1.65rem;
+  color: #ff5500;
+  text-shadow: 0 0 14px #ff550055;
+}
+.card-content p {
+  margin-bottom: 22px;
+  font-size: 1.08rem;
+}
+
+/* Botão premium */
+.btn-premium {
+  background: linear-gradient(90deg, #ffa000 10%, #ff5500 90%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 24px;
+  box-shadow: 0 4px 32px 0 #ff882055,0 1.5px 3px #0002 inset;
+  padding: 0.7em 1.8em;
+  font-size: 1.09rem;
+  cursor: pointer;
+  transition: filter 0.16s, box-shadow 0.16s;
+  filter: brightness(1);
+  outline: none;
+}
+.btn-premium:hover, .btn-premium:focus {
+  filter: brightness(1.25);
+  box-shadow: 0 8px 30px 0 #ff550066, 0 2px 4px #0001 inset;
+}
+
+/* Hover premium com múltiplas sombras */
+.card-premium:hover, .card-premium:focus-within {
+  box-shadow:
+    0 0 0 4px #ff550066,
+    0 12px 48px 0 #ff550033,
+    0 2px 12px 0 #0003;
+  transition: box-shadow 0.32s cubic-bezier(.5,.9,.4,1.5);
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .card-premium {
+    width: 97vw;
+    padding: 22px 6vw 28px;
+    font-size: 0.95rem;
+  }
+  .card-content h1 { font-size: 1.1rem;}
+}
+
+/* Acessibilidade */
+.card-premium:focus-visible { outline: 2px solid #ffa000; outline-offset: 2px;}
